@@ -1,7 +1,14 @@
 package com.flightstats.hub.dao.aws;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.model.*;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
+import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
+import com.amazonaws.services.dynamodbv2.model.GetItemResult;
+import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
+import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
+import com.amazonaws.services.dynamodbv2.model.ScanRequest;
+import com.amazonaws.services.dynamodbv2.model.ScanResult;
 import com.flightstats.hub.app.HubProperties;
 import com.flightstats.hub.app.HubServices;
 import com.flightstats.hub.dao.Dao;
@@ -14,18 +21,23 @@ import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DynamoChannelConfigDao implements Dao<ChannelConfig> {
+
     private final static Logger logger = LoggerFactory.getLogger(DynamoChannelConfigDao.class);
+    private final AmazonDynamoDB dbClient;
+    private final DynamoUtils dynamoUtils;
 
     @Inject
-    private AmazonDynamoDB dbClient;
-    @Inject
-    private DynamoUtils dynamoUtils;
-
-    @Inject
-    public DynamoChannelConfigDao() {
+    public DynamoChannelConfigDao(AmazonDynamoDB dbClient, DynamoUtils dynamoUtils) {
+        this.dbClient = dbClient;
+        this.dynamoUtils = dynamoUtils;
         HubServices.register(new DynamoChannelConfigurationDaoInit());
     }
 
@@ -64,7 +76,7 @@ public class DynamoChannelConfigDao implements Dao<ChannelConfig> {
         dbClient.putItem(putItemRequest);
     }
 
-    void initialize() throws InterruptedException {
+    void initialize() {
         String tableName = getTableName();
         ProvisionedThroughput throughput = dynamoUtils.getProvisionedThroughput("channel");
         logger.info("creating table {} ", tableName);
@@ -181,12 +193,12 @@ public class DynamoChannelConfigDao implements Dao<ChannelConfig> {
 
     private class DynamoChannelConfigurationDaoInit extends AbstractIdleService {
         @Override
-        protected void startUp() throws Exception {
+        protected void startUp() {
             initialize();
         }
 
         @Override
-        protected void shutDown() throws Exception {
+        protected void shutDown() {
         }
 
     }

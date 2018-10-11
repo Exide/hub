@@ -2,7 +2,16 @@ package com.flightstats.hub.dao.aws;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.model.*;
+import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
+import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
+import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
+import com.amazonaws.services.dynamodbv2.model.KeyType;
+import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
+import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughputDescription;
+import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
+import com.amazonaws.services.dynamodbv2.model.ScalarAttributeType;
+import com.amazonaws.services.dynamodbv2.model.TableDescription;
+import com.amazonaws.services.dynamodbv2.model.TableStatus;
 import com.flightstats.hub.app.HubProperties;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -10,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 public class DynamoUtils {
 
@@ -35,11 +43,6 @@ public class DynamoUtils {
     }
 
     void createAndUpdate(String tableName, String type, String keyName) {
-        createAndUpdate(tableName, type, keyName, createTableRequest -> createTableRequest);
-    }
-
-    private void createAndUpdate(String tableName, String type, String keyName,
-                                 Function<CreateTableRequest, CreateTableRequest> function) {
         ProvisionedThroughput throughput = getProvisionedThroughput(type);
         logger.info("creating table {} ", tableName);
         CreateTableRequest request = new CreateTableRequest()
@@ -47,7 +50,6 @@ public class DynamoUtils {
                 .withAttributeDefinitions(new AttributeDefinition(keyName, ScalarAttributeType.S))
                 .withKeySchema(new KeySchemaElement(keyName, KeyType.HASH))
                 .withProvisionedThroughput(throughput);
-        request = function.apply(request);
         createTable(request);
         updateTable(tableName, throughput);
     }

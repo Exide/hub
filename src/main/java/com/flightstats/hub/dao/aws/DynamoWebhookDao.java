@@ -1,7 +1,12 @@
 package com.flightstats.hub.dao.aws;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.model.*;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
+import com.amazonaws.services.dynamodbv2.model.GetItemResult;
+import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
+import com.amazonaws.services.dynamodbv2.model.ScanRequest;
+import com.amazonaws.services.dynamodbv2.model.ScanResult;
 import com.flightstats.hub.app.HubProperties;
 import com.flightstats.hub.app.HubServices;
 import com.flightstats.hub.dao.Dao;
@@ -12,11 +17,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DynamoWebhookDao implements Dao<Webhook> {
-    private final static Logger logger = LoggerFactory.getLogger(DynamoWebhookDao.class);
 
+    private final static Logger logger = LoggerFactory.getLogger(DynamoWebhookDao.class);
     private final AmazonDynamoDB dbClient;
     private final DynamoUtils dynamoUtils;
 
@@ -154,12 +163,12 @@ public class DynamoWebhookDao implements Dao<Webhook> {
 
     private class DynamoGroupDaoInit extends AbstractIdleService {
         @Override
-        protected void startUp() throws Exception {
+        protected void startUp() {
             initialize();
         }
 
         @Override
-        protected void shutDown() throws Exception {
+        protected void shutDown() {
         }
     }
 }
