@@ -119,4 +119,13 @@ public class DynamoUtils {
             //ignore
         }
     }
+
+    public boolean verifyTableExists(String tableName) {
+        try {
+            dbClient.describeTable(tableName);
+            return true;
+        } catch (ResourceNotFoundException e) {
+            return false;
+        }
+    }
 }

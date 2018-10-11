@@ -78,19 +78,8 @@ public class DynamoChannelConfigDao implements Dao<ChannelConfig> {
 
     void initialize() {
         String tableName = getTableName();
-        ProvisionedThroughput throughput = dynamoUtils.getProvisionedThroughput("channel");
-        logger.info("creating table {} ", tableName);
-        List<AttributeDefinition> attributes = new ArrayList<>();
-        attributes.add(new AttributeDefinition("key", ScalarAttributeType.S));
-
-        CreateTableRequest request = new CreateTableRequest()
-                .withTableName(tableName)
-                .withAttributeDefinitions(attributes)
-                .withKeySchema(new KeySchemaElement("key", KeyType.HASH))
-                .withProvisionedThroughput(throughput);
-
-        dynamoUtils.createTable(request);
-        dynamoUtils.updateTable(tableName, throughput);
+        if (dynamoUtils.verifyTableExists(tableName)) return;
+        dynamoUtils.createAndUpdate(tableName, "channel", "key");
     }
 
     @Override

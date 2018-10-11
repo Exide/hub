@@ -37,7 +37,9 @@ public class DynamoWebhookDao implements Dao<Webhook> {
     }
 
     private void initialize() {
-        dynamoUtils.createAndUpdate(getTableName(), "webhook", "name");
+        String tableName = getTableName();
+        if (dynamoUtils.verifyTableExists(tableName)) return;
+        dynamoUtils.createAndUpdate(tableName, "webhook", "name");
     }
 
     @Override
